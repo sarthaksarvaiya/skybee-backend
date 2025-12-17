@@ -1,40 +1,18 @@
 import dotenv from "dotenv";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
-dotenv.config();
+dotenv.config(); // 👈 MUST be before using process.env
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false, // MUST be false for 587
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false
-  }
-});
-
-// ✅ VERIFY SMTP CONNECTION (ADD HERE)
-(async () => {
-  try {
-    await transporter.verify();
-    console.log("✅ SMTP connection successful");
-  } catch (error) {
-    console.error("❌ SMTP connection failed:", error.message);
-  }
-})();
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendMail = async ({ name, email, phone, message }) => {
-  await transporter.sendMail({
-    from: `"Skybee Website" <${process.env.EMAIL_USER}>`,
-    to: "info@skybeepufpanel.com",
-    replyTo: email,
+  await resend.emails.send({
+    from: "Skybee Website <onboarding@resend.dev>",
+    to: ["info@skybeepufpanel.com"],
+    reply_to: email,
     subject: "New Contact Form Submission",
     html: `
       <h3>New Contact Request</h3>
-      <p><b>Name:</b> ${name}</p>
       <p><b>Name:</b> ${name}</p>
       <p><b>Email:</b> ${email}</p>
       <p><b>Phone:</b> ${phone || "-"}</p>

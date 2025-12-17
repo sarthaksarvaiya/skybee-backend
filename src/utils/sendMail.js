@@ -1,22 +1,27 @@
 import dotenv from "dotenv";
 import { Resend } from "resend";
 
-dotenv.config(); // 👈 MUST be before using process.env
+dotenv.config();
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export const sendMail = async ({ name, email, phone, message }) => {
-  await resend.emails.send({
-    from: "Skybee Website <onboarding@resend.dev>",
-    to: ["info@skybeepufpanel.com"],
-    reply_to: email,
-    subject: "New Contact Form Submission",
-    html: `
-      <h3>New Contact Request</h3>
-      <p><b>Name:</b> ${name}</p>
-      <p><b>Email:</b> ${email}</p>
-      <p><b>Phone:</b> ${phone || "-"}</p>
-      <p><b>Message:</b><br/>${message}</p>
-    `,
-  });
+export const sendMail = async (data) => {
+  try {
+    await resend.emails.send({
+      from: "Skybee Website <contact@skybeepufpanel.com>",
+      to: ["info@skybeepufpanel.com"],
+      replyTo: data.email,
+      subject: "New Contact Form Submission",
+      html: `
+        <h3>New Contact Request</h3>
+        <p><b>Name:</b> ${data.name}</p>
+        <p><b>Email:</b> ${data.email}</p>
+        <p><b>Phone:</b> ${data.phone || "-"}</p>
+        <p><b>Message:</b><br/>${data.message}</p>
+      `,
+    });
+  } catch (error) {
+    console.error("Resend email failed:", error);
+    throw error;
+  }
 };
